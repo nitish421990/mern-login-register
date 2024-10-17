@@ -33,16 +33,16 @@ app.get('/secret', auth, (req, res) => {
     res.render('secret');
 })
 
-app.get('/logout',auth, async (req, res) => {
+app.get('/logout', auth, async (req, res) => {
     try {
         // for single logout
         console.log(req.user);
-    req.user.tokens = req.user.tokens.filter((token) => {
-        return token.token !== req.token;
-    });
+        req.user.tokens = req.user.tokens.filter((token) => {
+            return token.token !== req.token;
+        });
 
-    // logout from all devices
-    req.user.tokens = [];
+        // logout from all devices
+        req.user.tokens = [];
         res.clearCookie('jwt');
         console.log('logout successfully');
         await req.user.save();
@@ -70,10 +70,10 @@ app.post('/register', async (req, res) => {
                 password: req.body.password,
                 confirmpassword: req.body.confirmpassword
             })
-            const token= await registerEmployee.generateAuthToken();
-            res.cookie('jwt',token,{expires:new Date(Date.now() + 5000),httpOnly:true});
-          //  console.log( cookie);
-           const resitered= await registerEmployee.save();
+            const token = await registerEmployee.generateAuthToken();
+            res.cookie('jwt', token, { expires: new Date(Date.now() + 5000), httpOnly: true });
+            //  console.log( cookie);
+            const resitered = await registerEmployee.save();
             res.status(201).render('index');
         } else {
             res.send("password and confirm password not match");
@@ -88,23 +88,23 @@ app.get('/login', (req, res) => {
 })
 
 app.post('/login', async (req, res) => {
-    try{
+    try {
 
         const email = req.body.email;
         const password = req.body.password;
-        const checkemail = await Register.findOne({email:email});
+        const checkemail = await Register.findOne({ email: email });
         const isMatch = await bcrypt.compare(password, checkemail.password);
         //console.log(`password matched : ${isMatch}`);
         const token = await checkemail.generateAuthToken();
-      //  console.log(`login token generated : ${token}`);
-        res.cookie('jwt',token,{expires:new Date(Date.now() + 500000)});
-       
-        if(isMatch){
+        //  console.log(`login token generated : ${token}`);
+        res.cookie('jwt', token, { expires: new Date(Date.now() + 500000) });
+
+        if (isMatch) {
             res.status(201).render('index');
-        }else{
+        } else {
             res.send(" Invalid email or password");
         }
-       
+
     } catch (err) {
         res.status(400).send("invalid email or password");
     }
